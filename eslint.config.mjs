@@ -31,7 +31,7 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['.next/', 'evaluations/'],
+    ignores: ['.next/'],
   },
 ]
 
