@@ -34,77 +34,51 @@ export const titresServicesCourseGroups: NonNullable<EvaluationForm['courseGroup
 
 export const titresServicesEval: EvaluationForm = {
   slug: 'titres-services',
-  title: 'Évaluation de formation — Titres Services',
-  shortTitle: 'Évaluation TS',
+  title: 'Questionnaire de satisfaction – Titres-Services',
+  shortTitle: 'Titres-Services',
   description:
-    'Formulaire unique pour tous les modules Titres Services. Choisissez la formation suivie, puis donnez votre avis sur le contenu, le formateur et les conditions.',
+    'Formulaire unique pour tous les modules Titres Services. Choisissez la formation suivie, puis donnez votre avis.',
+  intro:
+    'Votre avis est important pour améliorer nos formations. Cochez la réponse qui correspond le mieux à votre avis.',
   kind: 'course-eval',
   badgeLabel: 'Titres Services',
   heroImage: '/assets/services/perfectionnement/office.jpg',
   heroImageAlt: 'Formations Titres Services',
   courseGroups: titresServicesCourseGroups,
+  courseTitlePrompt: 'Nom de la formation',
+  asksTrainingDate: true,
   questions: [
     {
       id: 'module',
       type: 'likert-group',
-      prompt: 'Votre formation',
+      prompt: '',
       scale: ['Aucun avis', 'Pas satisfait', 'Satisfait', 'Très satisfait'],
       items: [
+        { id: 'attentes', prompt: 'La formation a répondu à mes attentes.' },
+        { id: 'utile-travail', prompt: 'Ce que j’ai appris est utile pour mon travail.' },
+        { id: 'explications', prompt: 'Les explications étaient faciles à comprendre.' },
+        { id: 'exemples', prompt: 'Les exemples et les exercices m’ont aidé à apprendre.' },
+        { id: 'utilisation', prompt: 'Je pourrai utiliser ce que j’ai appris dans mon travail.' },
+        { id: 'questions', prompt: 'Le formateur a bien répondu à mes questions.' },
         {
-          id: 'attentes',
-          prompt: 'Le contenu de la formation correspond à mes attentes personnelles.',
+          id: 'supports',
+          prompt: 'Les supports pédagogiques et le matériel étaient adaptés.',
         },
         {
-          id: 'objectif-formateur',
-          prompt: 'Le contenu de la formation correspond à l’objectif formulé par le formateur.',
+          id: 'clients',
+          prompt: 'La formation m’aidera à mieux travailler chez les clients.',
         },
         {
-          id: 'lien-metier',
-          prompt: 'Le contenu de la formation est en lien avec ma fonction d’aide-ménager(e).',
-        },
-        {
-          id: 'interactif',
-          prompt: 'La formation était interactive – il y avait un échange avec les autres participants.',
-        },
-        {
-          id: 'theorie-pratique',
-          prompt: 'La formation était bien équilibrée entre la théorie et la pratique.',
-        },
-        {
-          id: 'materiel',
-          prompt: 'Le matériel pédagogique (syllabus, matériel didactique) constituait une plus-value.',
-        },
-        {
-          id: 'methodes',
+          id: 'securite',
           prompt:
-            'Grâce à la diversité des méthodes d’apprentissage (exercices/exemples), je comprends mieux la théorie.',
-        },
-        {
-          id: 'pratique-metier',
-          prompt: 'Ce que j’ai appris, je peux l’utiliser dans la pratique de mon métier.',
-        },
-        {
-          id: 'questions',
-          prompt: 'Le formateur tenait compte de nos questions.',
-        },
-        {
-          id: 'maitrise',
-          prompt: 'Le formateur maîtrise la matière.',
-        },
-        {
-          id: 'salle',
-          prompt: 'La salle était appropriée pour cette formation.',
-        },
-        {
-          id: 'recommandation',
-          prompt: 'Je recommande cette formation à mes collègues.',
+            'La formation m’a donné des conseils pour travailler plus facilement et en toute sécurité.',
         },
       ],
     },
     {
       id: 'remarques',
       type: 'textarea',
-      prompt: 'Remarques',
+      prompt: 'Avez-vous des remarques ou des suggestions à ajouter ?',
       optional: true,
     },
   ],

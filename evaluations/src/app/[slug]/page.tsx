@@ -39,7 +39,7 @@ export default async function EvaluationFormPage({ params }: Props) {
         </Link>
       </p>
       <h1 className="text-2xl font-bold text-text md:text-3xl">{form.title}</h1>
-      <p className="mt-2 text-muted">{form.description}</p>
+      <p className="mt-2 whitespace-pre-line text-muted">{form.intro ?? form.description}</p>
       <div className="mt-8">
         <EvaluationFormClient form={form} />
       </div>

@@ -1,7 +1,9 @@
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from '@react-pdf/renderer'
 import {
+  formatIsoDate,
   isChoiceCorrect,
   scoreQuiz,
+  visibleQuestionNumber,
   type EvaluationAnswers,
   type EvaluationForm,
 } from '@/lib/evaluations'
@@ -83,6 +85,7 @@ function EvaluationPdfDocument({
   firstName,
   lastName,
   courseTitle,
+  trainingDate,
   answers,
   submittedAt,
 }: {
@@ -90,6 +93,7 @@ function EvaluationPdfDocument({
   firstName: string
   lastName: string
   courseTitle?: string
+  trainingDate?: string
   answers: EvaluationAnswers
   submittedAt: string
 }) {
@@ -103,7 +107,10 @@ function EvaluationPdfDocument({
         <View style={styles.meta}>
           <Text style={styles.metaLine}>Participant : {firstName} {lastName}</Text>
           {courseTitle ? <Text style={styles.metaLine}>Formation : {courseTitle}</Text> : null}
-          <Text style={styles.metaLine}>Date : {submittedAt}</Text>
+          {trainingDate ? (
+            <Text style={styles.metaLine}>Date de la formation : {formatIsoDate(trainingDate)}</Text>
+          ) : null}
+          <Text style={styles.metaLine}>Envoyé le : {submittedAt}</Text>
           {quizScore ? (
             <Text style={styles.score}>
               Score : {quizScore.correct} / {quizScore.total}
@@ -111,19 +118,29 @@ function EvaluationPdfDocument({
           ) : null}
         </View>
 
-        {form.questions.map((question, index) => {
+        {form.questions.map((question) => {
+          const number = visibleQuestionNumber(form, question.id)
+          const prefix = number != null ? `${number}. ` : ''
+
           if (question.type === 'likert-group') {
             return (
               <View key={question.id}>
-                <Text style={styles.sectionTitle}>{question.prompt}</Text>
-                {question.items.map((item) => (
-                  <View key={item.id} style={styles.block}>
-                    <Text style={styles.prompt}>{item.prompt}</Text>
-                    <Text style={styles.answer}>
-                      {formatValue(answers[`${question.id}:${item.id}`])}
-                    </Text>
-                  </View>
-                ))}
+                {question.prompt ? <Text style={styles.sectionTitle}>{question.prompt}</Text> : null}
+                {question.items.map((item) => {
+                  const itemNumber = visibleQuestionNumber(form, `${question.id}:${item.id}`)
+                  const itemPrefix = itemNumber != null ? `${itemNumber}. ` : ''
+                  return (
+                    <View key={item.id} style={styles.block}>
+                      <Text style={styles.prompt}>
+                        {itemPrefix}
+                        {item.prompt}
+                      </Text>
+                      <Text style={styles.answer}>
+                        {formatValue(answers[`${question.id}:${item.id}`])}
+                      </Text>
+                    </View>
+                  )
+                })}
               </View>
             )
           }
@@ -133,7 +150,10 @@ function EvaluationPdfDocument({
             if (question.optional && remarks === '—') return null
             return (
               <View key={question.id} style={styles.block}>
-                <Text style={styles.prompt}>{question.prompt}</Text>
+                <Text style={styles.prompt}>
+                  {prefix}
+                  {question.prompt}
+                </Text>
                 <Text style={styles.answer}>{remarks}</Text>
               </View>
             )
@@ -143,7 +163,8 @@ function EvaluationPdfDocument({
           return (
             <View key={question.id} style={styles.block} wrap={false}>
               <Text style={styles.prompt}>
-                {index + 1}. {question.prompt}
+                {prefix}
+                {question.prompt}
               </Text>
               <Text style={styles.answer}>Réponse : {formatValue(answers[question.id])}</Text>
               {correct === true ? (
@@ -168,6 +189,7 @@ export async function renderEvaluationPdf(input: {
   firstName: string
   lastName: string
   courseTitle?: string
+  trainingDate?: string
   answers: EvaluationAnswers
   submittedAt: string
 }): Promise<Buffer> {
@@ -177,6 +199,7 @@ export async function renderEvaluationPdf(input: {
       firstName={input.firstName}
       lastName={input.lastName}
       courseTitle={input.courseTitle}
+      trainingDate={input.trainingDate}
       answers={input.answers}
       submittedAt={input.submittedAt}
     />,

@@ -24,6 +24,21 @@ export function requiresCourseTitle(form: EvaluationForm): boolean {
   return form.kind === 'course-eval'
 }
 
+export function requiresTrainingDate(form: EvaluationForm): boolean {
+  return Boolean(form.asksTrainingDate)
+}
+
+export function isIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const parsed = new Date(`${value}T00:00:00`)
+  return !Number.isNaN(parsed.getTime())
+}
+
+export function formatIsoDate(value: string): string {
+  if (!isIsoDate(value)) return value
+  return new Date(`${value}T00:00:00`).toLocaleDateString('fr-BE', { dateStyle: 'long' })
+}
+
 export function getEvaluationForm(slug: string): EvaluationForm | undefined {
   return evaluationForms.find((form) => form.slug === slug)
 }
@@ -43,6 +58,22 @@ export function flattenQuestionIds(form: EvaluationForm): string[] {
     }
   }
   return ids
+}
+
+export function visibleQuestionNumber(form: EvaluationForm, questionId: string): number | null {
+  let n = 0
+  for (const question of form.questions) {
+    if (question.type === 'likert-group') {
+      for (const item of question.items) {
+        n += 1
+        if (`${question.id}:${item.id}` === questionId) return n
+      }
+      continue
+    }
+    n += 1
+    if (question.id === questionId) return n
+  }
+  return null
 }
 
 export function isAnswerFilled(value: string | string[] | undefined): boolean {

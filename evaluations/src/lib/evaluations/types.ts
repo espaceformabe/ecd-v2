@@ -33,6 +33,8 @@ export type EvaluationForm = {
   title: string
   shortTitle: string
   description: string
+  /** Longer copy shown on the form page; falls back to description. */
+  intro?: string
   kind: EvaluationKind
   badgeLabel: string
   heroImage: string
@@ -40,6 +42,10 @@ export type EvaluationForm = {
   questions: EvaluationQuestion[]
   /** When set, the respondent must pick a Titres Services module before submitting. */
   courseGroups?: { label: string; options: string[] }[]
+  /** Label for the course title field on course-eval forms. */
+  courseTitlePrompt?: string
+  /** When true, the respondent must enter the training date. */
+  asksTrainingDate?: boolean
 }
 
 export type EvaluationAnswers = Record<string, string | string[]>

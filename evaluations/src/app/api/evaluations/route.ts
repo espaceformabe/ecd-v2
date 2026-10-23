@@ -5,8 +5,11 @@ import {
   flattenQuestionIds,
   getEvaluationForm,
   isAnswerFilled,
+  formatIsoDate,
+  isIsoDate,
   MAX_COURSE_TITLE_LENGTH,
   requiresCourseTitle,
+  requiresTrainingDate,
   scoreQuiz,
   type EvaluationAnswers,
 } from '@/lib/evaluations'
@@ -83,6 +86,7 @@ export async function POST(request: NextRequest) {
   const firstName = typeof body.firstName === 'string' ? body.firstName.trim() : ''
   const lastName = typeof body.lastName === 'string' ? body.lastName.trim() : ''
   const courseTitle = typeof body.courseTitle === 'string' ? body.courseTitle.trim() : ''
+  const trainingDate = typeof body.trainingDate === 'string' ? body.trainingDate.trim() : ''
   const answers = parseAnswers(body.answers)
   const form = getEvaluationForm(formId)
   const allowedCourses = form ? courseOptionList(form) : []
@@ -109,6 +113,10 @@ export async function POST(request: NextRequest) {
 
   if (courseTitle.length > MAX_COURSE_TITLE_LENGTH) {
     return NextResponse.json({ error: 'L’intitulé de la formation est trop long.' }, { status: 400 })
+  }
+
+  if (form && requiresTrainingDate(form) && !isIsoDate(trainingDate)) {
+    return NextResponse.json({ error: 'Veuillez indiquer la date de la formation.' }, { status: 400 })
   }
 
   const missing = flattenQuestionIds(form).some((id) => !isAnswerFilled(answers[id]))
@@ -151,7 +159,8 @@ export async function POST(request: NextRequest) {
         <li><strong>Formulaire :</strong> ${form.title}</li>
         ${courseTitle ? `<li><strong>Formation :</strong> ${escapeHtml(courseTitle)}</li>` : ''}
         <li><strong>Participant :</strong> ${firstName} ${lastName}</li>
-        <li><strong>Date :</strong> ${submittedAt}</li>
+        ${trainingDate ? `<li><strong>Date de la formation :</strong> ${escapeHtml(formatIsoDate(trainingDate))}</li>` : ''}
+        <li><strong>Envoyé le :</strong> ${submittedAt}</li>
         ${score ? `<li><strong>Score :</strong> ${score.correct} / ${score.total}</li>` : ''}
         ${
           typeof answers.remarques === 'string' && answers.remarques.trim()
@@ -165,7 +174,15 @@ export async function POST(request: NextRequest) {
 
   let pdfBase64: string
   try {
-    const pdf = await renderEvaluationPdf({ form, firstName, lastName, courseTitle, answers, submittedAt })
+    const pdf = await renderEvaluationPdf({
+      form,
+      firstName,
+      lastName,
+      courseTitle,
+      trainingDate: trainingDate || undefined,
+      answers,
+      submittedAt,
+    })
     pdfBase64 = pdf.toString('base64')
   } catch (error) {
     console.error('Evaluation PDF generation failed', error)

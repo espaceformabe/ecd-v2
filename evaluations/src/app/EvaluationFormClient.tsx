@@ -10,6 +10,8 @@ import {
   isAnswerFilled,
   MAX_COURSE_TITLE_LENGTH,
   requiresCourseTitle,
+  requiresTrainingDate,
+  visibleQuestionNumber,
   type EvaluationAnswers,
   type EvaluationForm,
   type EvaluationQuestion,
@@ -31,6 +33,7 @@ function questionAnchor(id: string) {
 export function EvaluationFormClient({ form }: Props) {
   const courseOptions = useMemo(() => courseOptionList(form), [form])
   const asksCourseTitle = requiresCourseTitle(form)
+  const asksTrainingDate = requiresTrainingDate(form)
   const usesCourseSelect = courseOptions.length > 0
   const questionIds = useMemo(() => flattenQuestionIds(form), [form])
   const formRef = useRef<HTMLFormElement>(null)
@@ -38,6 +41,7 @@ export function EvaluationFormClient({ form }: Props) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [courseTitle, setCourseTitle] = useState('')
+  const [trainingDate, setTrainingDate] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [answers, setAnswers] = useState<EvaluationAnswers>({})
   const [fieldError, setFieldError] = useState<string | null>(null)
@@ -80,6 +84,11 @@ export function EvaluationFormClient({ form }: Props) {
       scrollTo('eval-identity')
       return false
     }
+    if (asksTrainingDate && !trainingDate) {
+      setFieldError('Veuillez indiquer la date de la formation.')
+      scrollTo('eval-identity')
+      return false
+    }
     const missing = questionIds.find((id) => !isAnswerFilled(answers[id]))
     if (missing) {
       setFieldError('Veuillez répondre à toutes les questions.')
@@ -102,6 +111,7 @@ export function EvaluationFormClient({ form }: Props) {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           courseTitle: courseTitle.trim() || undefined,
+          trainingDate: trainingDate || undefined,
           answers,
           website: honeypot,
         }),
@@ -204,7 +214,7 @@ export function EvaluationFormClient({ form }: Props) {
         {usesCourseSelect ? (
           <div className="mt-4">
             <label htmlFor="eval-course" className="mb-1.5 block text-sm font-semibold text-text">
-              Module suivi <span className="text-azure-700">*</span>
+              {form.courseTitlePrompt ?? 'Module suivi'} <span className="text-azure-700">*</span>
             </label>
             <select
               id="eval-course"
@@ -233,7 +243,7 @@ export function EvaluationFormClient({ form }: Props) {
         ) : asksCourseTitle ? (
           <div className="mt-4">
             <label htmlFor="eval-course" className="mb-1.5 block text-sm font-semibold text-text">
-              Formation suivie <span className="text-azure-700">*</span>
+              {form.courseTitlePrompt ?? 'Formation suivie'} <span className="text-azure-700">*</span>
             </label>
             <input
               id="eval-course"
@@ -251,13 +261,34 @@ export function EvaluationFormClient({ form }: Props) {
             />
           </div>
         ) : null}
+        {asksTrainingDate ? (
+          <div className="mt-4">
+            <label htmlFor="eval-training-date" className="mb-1.5 block text-sm font-semibold text-text">
+              Date <span className="text-azure-700">*</span>
+            </label>
+            <input
+              id="eval-training-date"
+              name="trainingDate"
+              type="date"
+              required
+              max={new Date().toISOString().slice(0, 10)}
+              value={trainingDate}
+              aria-describedby={fieldError && !trainingDate ? 'eval-identity-error' : undefined}
+              onChange={(e) => {
+                setTrainingDate(e.target.value)
+                setFieldError(null)
+              }}
+              className="min-h-12 w-full rounded-xl border border-border bg-white px-4 text-base text-text outline-none ring-azure-500 focus:ring-2"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="space-y-8">
-        {form.questions.map((question, index) => (
+        {form.questions.map((question) => (
           <QuestionBlock
             key={question.id}
-            index={index}
+            form={form}
             question={question}
             answers={answers}
             setAnswer={setAnswer}
@@ -290,33 +321,58 @@ export function EvaluationFormClient({ form }: Props) {
   )
 }
 
+function QuestionHeading({
+  number,
+  prompt,
+  optional,
+}: {
+  number: number | null
+  prompt: string
+  optional?: boolean
+}) {
+  return (
+    <>
+      {number != null ? <span className="mr-2 text-azure-700">{number}.</span> : null}
+      {prompt}
+      {optional ? <span className="ml-2 text-sm font-normal text-muted">(facultatif)</span> : null}
+    </>
+  )
+}
+
 function QuestionBlock({
-  index,
+  form,
   question,
   answers,
   setAnswer,
   toggleCheckbox,
 }: {
-  index: number
+  form: EvaluationForm
   question: EvaluationQuestion
   answers: EvaluationAnswers
   setAnswer: (id: string, value: string | string[]) => void
   toggleCheckbox: (id: string, option: string) => void
 }) {
+  const number = visibleQuestionNumber(form, question.id)
+
   if (question.type === 'likert-group') {
     return (
       <fieldset className="space-y-4">
-        <legend className="text-lg font-semibold text-text">{question.prompt}</legend>
+        <legend className={question.prompt ? 'text-lg font-semibold text-text' : 'sr-only'}>
+          {question.prompt || 'Votre avis'}
+        </legend>
         {question.items.map((item) => {
           const id = `${question.id}:${item.id}`
           const value = answers[id]
+          const itemNumber = visibleQuestionNumber(form, id)
           return (
             <div
               key={item.id}
               id={questionAnchor(id)}
               className="scroll-mt-24 rounded-xl border border-border bg-surface p-4"
             >
-              <p className="mb-3 font-medium text-text">{item.prompt}</p>
+              <p className="mb-3 font-medium text-text">
+                <QuestionHeading number={itemNumber} prompt={item.prompt} />
+              </p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {question.scale.map((option) => {
                   const selected = value === option
@@ -354,10 +410,7 @@ function QuestionBlock({
     return (
       <div id={questionAnchor(question.id)} className="scroll-mt-24">
         <label htmlFor={`eval-${question.id}`} className="mb-2 block text-lg font-semibold text-text">
-          {question.prompt}
-          {question.optional ? (
-            <span className="ml-2 text-sm font-normal text-muted">(facultatif)</span>
-          ) : null}
+          <QuestionHeading number={number} prompt={question.prompt} optional={question.optional} />
         </label>
         <textarea
           id={`eval-${question.id}`}
@@ -375,8 +428,7 @@ function QuestionBlock({
   return (
     <fieldset id={questionAnchor(question.id)} className="scroll-mt-24">
       <legend className="mb-4 text-lg font-semibold text-text">
-        <span className="mr-2 text-azure-700">{index + 1}.</span>
-        {question.prompt}
+        <QuestionHeading number={number} prompt={question.prompt} />
       </legend>
       {question.imageSrc ? (
         <div className="relative mb-4 overflow-hidden rounded-xl border border-border bg-primary-50">
