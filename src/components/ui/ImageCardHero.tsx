@@ -31,6 +31,8 @@ export interface ImageCardHeroProps {
   imageAspectClassName?: string
   /** Responsive `sizes` hint for next/image */
   imageSizes?: string
+  /** Heading level for the block title. Use `h1` when this block is the page title. */
+  titleAs?: 'h1' | 'h2'
 }
 
 const motionConfig = {
@@ -52,7 +54,9 @@ export function ImageCardHero({
   imageWidthClassName,
   imageAspectClassName = 'aspect-[4/3]',
   imageSizes = '(max-width: 1024px) 100vw, 68vw',
+  titleAs,
 }: ImageCardHeroProps) {
+  const HeadingTag = titleAs ?? (titleInCard ? 'h3' : 'h2')
   const imageOffset = imageOnLeft ? -80 : 80
   const cardOffset = imageOnLeft ? 80 : -80
 
@@ -70,11 +74,11 @@ export function ImageCardHero({
     <section className={`w-full bg-background ${sectionPadding} px-4 md:px-8 lg:px-16`}>
       <div className="max-w-6xl mx-auto">
         {!titleInCard && (
-          <h2
+          <HeadingTag
             className={`text-3xl md:text-4xl font-bold text-center text-primary-900 ${titleMargin}`}
           >
             {title}
-          </h2>
+          </HeadingTag>
         )}
         <div className="relative flex flex-col lg:block">
           {/* Image */}
@@ -106,7 +110,9 @@ export function ImageCardHero({
           >
             <div className="space-y-4 text-secondary-50">
               {titleInCard && (
-                <h3 className="text-xl md:text-2xl font-bold text-secondary-100">{title}</h3>
+                <HeadingTag className="text-xl md:text-2xl font-bold text-secondary-100">
+                  {title}
+                </HeadingTag>
               )}
               {description && (
                 <p className="text-secondary-50 text-sm md:text-base leading-relaxed">

@@ -290,6 +290,12 @@ export const Hero = () => {
 
         <div className="relative z-10 flex flex-col gap-6 bg-primary-800 px-4 pb-10 pt-6 sm:absolute sm:inset-0 sm:bg-transparent sm:px-8 sm:pb-36 sm:pt-0">
           <div className="mx-auto w-full max-w-6xl sm:mt-auto">
+            <h1 className="mb-4 max-w-4xl text-base font-semibold leading-snug sm:text-lg">
+              <span className="bg-primary-800 px-0.5 py-1">
+                Espace Forma : formations titres-services, école de devoirs et inclusion numérique à
+                Bruxelles
+              </span>
+            </h1>
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide.title}
@@ -309,12 +315,12 @@ export const Hero = () => {
                 >
                   <span className="bg-primary-800 px-0.5 py-1">{activeSlide.title}</span>
                 </motion.p>
-                <motion.h1
+                <motion.p
                   className="font-semibold leading-tight text-2xl! lg:text-6xl!"
                   variants={textVariants}
                 >
                   <span className="bg-primary-800 px-0.5 py-1">{activeSlide.subtitle}</span>
-                </motion.h1>
+                </motion.p>
                 <motion.p
                   className="mt-6 max-w-3xl text-base text-white/90 sm:text-xl text-justify [text-align-last:start]"
                   variants={textVariants}

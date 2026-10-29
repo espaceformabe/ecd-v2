@@ -1,6 +1,8 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
 import { getCatalogueModuleBySlug, getCatalogueSlugs } from '@/lib/titresServices'
 import { TitresServiceModuleClient } from './TitresServiceModuleClient'
 import { hasContentfulEnv } from '@/lib/contentful/env'
@@ -13,8 +15,21 @@ type PageProps = {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const cmsModule = hasContentfulEnv() ? await getTitresServiceModuleBySlug(slug) : null
+  const localModule = cmsModule ? null : getCatalogueModuleBySlug(slug)
+  const titre = cmsModule?.titre ?? localModule?.titre
+  const description = (cmsModule?.descriptionCourte || localModule?.descriptionCourte || '').trim()
+
+  if (!titre) return {}
+
+  return createPageMetadata({
+    title: titre,
+    description: description || titre,
+    path: `/titres-services/${slug}`,
+  })
+}
 
 export async function generateStaticParams() {
   if (hasContentfulEnv()) {

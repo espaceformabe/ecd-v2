@@ -12,7 +12,7 @@ export const homepageHeroSlides: HeroSlide[] = [
     image: '/assets/hero/videos/video_edd.mp4',
     poster: '/assets/hero/edd.webp',
     title: 'Soutien scolaire',
-    subtitle: "Parce que chaque enfant mérite toute ses chances à l'école",
+    subtitle: "Parce que chaque enfant mérite toutes ses chances à l'école",
     description: 'Un accompagnement attentif pour révéler le potentiel de chaque élève.',
   },
   {
@@ -26,9 +26,9 @@ export const homepageHeroSlides: HeroSlide[] = [
   {
     image: '/assets/hero/videos/video_cleaning6.mp4',
     poster: '/assets/hero/cleaning6.jpg',
-    title: 'Formations professionelles',
-    subtitle: "Former aujourd'hui les professionels des Titres-Services de demain",
-    description: 'Des formations qui transforment le quitidien des aide-ménagères.',
+    title: 'Formations professionnelles',
+    subtitle: "Former aujourd'hui les professionnels des Titres-Services de demain",
+    description: 'Des formations qui transforment le quotidien des aide-ménagères.',
   },
   {
     image: '/assets/hero/videos/video_formation.mp4',

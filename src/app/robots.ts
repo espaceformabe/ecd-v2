@@ -1,14 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-function getSiteUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL
-  if (explicit) return explicit.replace(/\/+$/, '')
-
-  const vercelUrl = process.env.VERCEL_URL
-  if (vercelUrl) return `https://${vercelUrl}`.replace(/\/+$/, '')
-
-  return 'http://localhost:3000'
-}
+import { getSiteUrl } from '@/lib/seo/siteUrl'
 
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl()
@@ -18,10 +10,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/inclusion-numerique/seniors-digital-old'],
+        disallow: ['/inclusion-numerique/seniors-digital-old', '/inclusion-numerique/test'],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
   }
 }
-

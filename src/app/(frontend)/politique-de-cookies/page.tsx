@@ -1,7 +1,9 @@
 import React from 'react'
 import { politiqueCookiesContent } from '@/lib/content/legalPagesContent'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
 
-export const metadata = politiqueCookiesContent.metadata
+export const metadata = createPageMetadata(pageSeo.politiqueCookies)
 
 const Page = () => {
   return (

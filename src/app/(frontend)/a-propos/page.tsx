@@ -1,5 +1,9 @@
 import React from 'react'
 import { quiSommesNousPlaceholderContent } from '@/lib/content/quiSommesNousPlaceholder'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
+
+export const metadata = createPageMetadata(pageSeo.aPropos)
 
 const Page = () => {
   return (

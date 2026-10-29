@@ -1,15 +1,28 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { eddPageContent, eddSectionMeta, eddSections } from '@/lib/content/pages/ecole-devoirs-content'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
 import { EddSectionClient } from './EddSectionClient'
 
 type PageProps = {
   params: Promise<{ slug: string }>
 }
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const section = eddSections.find((s) => s.slug === slug)
+  if (!section) return {}
+
+  const meta = eddSectionMeta[slug]
+
+  return createPageMetadata({
+    title: section.title,
+    description: meta?.shortDescription ?? section.title,
+    path: `/ecole-devoirs/${slug}`,
+  })
+}
 
 export async function generateStaticParams() {
   return eddSections.map((s) => ({ slug: s.slug }))

@@ -1,7 +1,9 @@
 import React from 'react'
 import { politiqueConfidentialiteContent } from '@/lib/content/legalPagesContent'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
 
-export const metadata = politiqueConfidentialiteContent.metadata
+export const metadata = createPageMetadata(pageSeo.politiqueConfidentialite)
 
 const Page = () => {
   return (

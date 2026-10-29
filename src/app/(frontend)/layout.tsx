@@ -10,16 +10,9 @@ import { RebrandingToast } from '@/components/RebrandingToast'
 import { defaultSocialLinks } from '@/lib/content/footerContent'
 import { hasContentfulEnv } from '@/lib/contentful/env'
 import { getSiteSettings } from '@/lib/contentful/queries/siteSettings'
-
-function getSiteUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL
-  if (explicit) return explicit.replace(/\/+$/, '')
-
-  const vercelUrl = process.env.VERCEL_URL
-  if (vercelUrl) return `https://${vercelUrl}`.replace(/\/+$/, '')
-
-  return 'http://localhost:3000'
-}
+import { defaultOgImage } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
+import { getSiteUrl, isPreviewDeployment } from '@/lib/seo/siteUrl'
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -27,30 +20,25 @@ export const metadata: Metadata = {
     default: 'Espace Forma (EF)',
     template: '%s | Espace Forma (EF)',
   },
-  description:
-    "Espace Forma (EF) asbl, auparavant Espace Cultures et Developpement (ECD) asbl, est un cadre d'action associatif engagé dans la valorisation de la culture comme levier d'intégration, d'émancipation et d'insertion sociale.",
-  alternates: {
-    canonical: '/',
-  },
+  description: pageSeo.home.description,
+  robots: isPreviewDeployment()
+    ? { index: false, follow: false }
+    : { index: true, follow: true },
   openGraph: {
     type: 'website',
     locale: 'fr_BE',
     siteName: 'Espace Forma (EF)',
     title: 'Espace Forma (EF)',
-    description:
-      "Espace Forma (EF) asbl, auparavant Espace Cultures et Developpement (ECD) asbl, est un cadre d'action associatif engagé dans la valorisation de la culture comme levier d'intégration, d'émancipation et d'insertion sociale.",
+    description: pageSeo.home.description,
+    images: [{ url: defaultOgImage.url, alt: defaultOgImage.alt }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Espace Forma (EF)',
-    description:
-      "Espace Forma (EF) asbl, auparavant Espace Cultures et Developpement (ECD) asbl, est un cadre d'action associatif engagé dans la valorisation de la culture comme levier d'intégration, d'émancipation et d'insertion sociale.",
+    description: pageSeo.home.description,
+    images: [defaultOgImage.url],
   },
 }
-
-// Force dynamic rendering to prevent stale cache
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
@@ -58,10 +46,43 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const rebrandingToastEnabled = settings?.rebrandingToastEnabled ?? true
   const rebrandingToastDurationMs = settings?.rebrandingToastDurationMs ?? 30000
   const socialLinks = settings?.socialLinks ?? defaultSocialLinks
+  const siteUrl = getSiteUrl()
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': ['EducationalOrganization', 'NGO'],
+    name: 'Espace Forma',
+    alternateName: ['Espace Forma (EF)', 'Espace Cultures et Développement', 'ECD'],
+    url: siteUrl,
+    email: 'info@espaceforma.be',
+    telephone: '+3224256585',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Rue du Gouvernement Provisoire 34A',
+      postalCode: '1000',
+      addressLocality: 'Bruxelles',
+      addressCountry: 'BE',
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '08:00',
+      closes: '16:00',
+    },
+    sameAs: [
+      socialLinks.linkedin,
+      socialLinks.instagram,
+      socialLinks.facebook,
+      socialLinks.youtube,
+    ].filter(Boolean),
+  }
 
   return (
     <html lang="fr" data-scroll-behavior="smooth">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <main>
           <RebrandingToast
             enabled={rebrandingToastEnabled}

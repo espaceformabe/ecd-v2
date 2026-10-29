@@ -11,19 +11,18 @@ export function getContentfulGraphQLClient() {
 
   const token = isPreview ? env.previewToken ?? env.deliveryToken : env.deliveryToken
 
-  // Next.js may cache server-side fetches; force `no-store` so Contentful updates appear immediately.
-  // graphql-request uses `fetch` under the hood, so we override it.
-  const noStoreFetch: typeof fetch = (input, init) =>
+  // Preview reads drafts and must not be cached. Published delivery can be stale for up to an hour.
+  const contentfulFetch: typeof fetch = (input, init) =>
     fetch(input, {
       ...(init ?? {}),
-      cache: 'no-store',
+      ...(isPreview ? { cache: 'no-store' as const } : { next: { revalidate: 3600 } }),
     })
 
   return new GraphQLClient(getContentfulGraphQLEndpoint(env.spaceId, env.environmentId), {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    fetch: noStoreFetch,
+    fetch: contentfulFetch,
   })
 }
 

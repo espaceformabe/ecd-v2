@@ -25,7 +25,7 @@ export const contactPageContent = {
       kind: 'phone',
       title: 'Téléphone',
       content: '+32 2 425 65 85',
-      link: null,
+      link: 'tel:+3224256585',
     },
     {
       kind: 'address',
@@ -55,6 +55,6 @@ export const contactPageContent = {
     address: 'Rue du Gouvernement Provisoire 34A, 1000 Bruxelles, Belgique',
     openInGoogleMapsLabel: 'Ouvrir dans Google Maps',
     openInGoogleMapsHref:
-      'https://www.google.com/maps/place/Espace+Cultures+%26+D%C3%A9veloppement+asbl/',
+      'https://www.google.com/maps/search/?api=1&query=Espace+Forma+asbl,+Rue+du+Gouvernement+Provisoire+34A,+1000+Bruxelles',
   },
 } as const

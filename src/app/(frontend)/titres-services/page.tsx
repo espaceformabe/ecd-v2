@@ -1,4 +1,8 @@
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
 import { catalogueModules } from '@/lib/titresServices'
+
+export const metadata = createPageMetadata(pageSeo.titresServices)
 import { HeroSection } from '@/components/ui/HeroSection'
 import { titresServiceCatalogueHero } from '@/lib/content/pages/titresServicePageData'
 import { hasContentfulEnv } from '@/lib/contentful/env'
@@ -44,9 +48,6 @@ const modalitiesParticipation = [
       'Certains de nos modules sont repris dans le catalogue du Form TS, en formule « In Company » ou « Calendrier ouvert », selon les sessions proposées.',
   },
 ]
-
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 const Page = async () => {
   const cmsModules = hasContentfulEnv() ? await listTitresServiceModules() : null

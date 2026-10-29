@@ -5,11 +5,11 @@ import ServiceCards from '@/components/ui/ServiceCards'
 import Video from '@/components/homepage/Video'
 import About from '@/components/homepage/About'
 import Projects from '@/components/homepage/Projects'
+import { createPageMetadata } from '@/lib/seo/pageMetadata'
+import { pageSeo } from '@/lib/seo/routes'
 // import { fetchSlides } from 'src/lib/fetchSlides'
 
-// Force dynamic rendering to prevent stale cache
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const metadata = createPageMetadata(pageSeo.home)
 
 export default async function HomePage() {
   // const slides = await fetchSlides()

@@ -14,7 +14,7 @@ const Logo = () => {
       >
         <Image
           src="/assets/logo/logo.png"
-          alt="Espace Form"
+          alt="Espace Forma"
           width={160}
           height={44}
           priority
